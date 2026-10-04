@@ -99,7 +99,7 @@ npm run test:deploy
 npm run build:deploy
 ```
 
-El paquete se entrega desde `artifacts/deploy/`; abrir `ClinicaDeploy.exe` junto con `Deploy.ps1` y la publicación ZIP. La guía [DEPLOY.md](docs/DEPLOY.md) explica los datos solicitados, custodia de claves, permisos, modos de operación y aceptación. El ejecutable es autocontenido, pero la clínica requiere Hosting Bundle .NET 10 y SQL local preparados. La firma de código y validación completa en Windows Server/IIS/SQL son pendientes antes de producción.
+El paquete se genera localmente en `artifacts/deploy/` y esa carpeta está excluida de Git. Para usarlo, ejecuta `npm run build:deploy` y entrega la carpeta generada con `ClinicaDeploy.exe`, `Deploy.ps1` y la publicación ZIP. La guía [DEPLOY.md](docs/DEPLOY.md) explica los datos solicitados, custodia de claves, permisos, modos de operación y aceptación. El ejecutable es autocontenido, pero la clínica requiere Hosting Bundle .NET 10 y SQL local preparados. La firma de código y validación completa en Windows Server/IIS/SQL son pendientes antes de producción.
 
 ## Ejecutar en desarrollo
 
@@ -207,6 +207,6 @@ tests/                   Pruebas de integración, seguridad y experiencia
 
 ## Datos y uso responsable
 
-El repositorio debe contener únicamente código, configuraciones de ejemplo y datos ficticios. Las carpetas de datos, respaldos, publicaciones, logs y secretos están ignoradas por Git. No subas expedientes, documentos reales, credenciales, claves de Data Protection ni archivos de configuración locales.
+El repositorio público contiene código fuente, pruebas, documentación, configuraciones de ejemplo y datos ficticios controlados para desarrollo. No contiene el ejecutable autocontenido ni publicaciones generadas: `artifacts/`, `bin/`, `obj/`, `data/`, `output/`, respaldos y paquetes están ignorados por Git. Nunca subas expedientes, documentos reales, credenciales, claves de Data Protection, certificados, archivos `.pfx`, respaldos ni configuraciones locales.
 
 La aplicación no está certificada para uso clínico o legal en producción. Las obligaciones de privacidad, conservación, consentimiento, factura fiscal y operación del servidor deben validarse según la clínica y la jurisdicción aplicable.
