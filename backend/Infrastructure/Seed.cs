@@ -22,7 +22,7 @@ public static class Seed
             ("Empresa","Portal de convenio sin información clínica","patients.read,appointments.read,payments.read,companies.read,reports.read,documents.read")
         };
         foreach (var (name, description, permissions) in roles) db.Roles.Add(new() { Name = name, Description = description, Audience = Access.DefaultAudience(name), Permissions = NewPermissions(name, permissions) });
-        db.Settings.Add(new() { Name = "Clínica Serena", Address = "Av. del Bienestar 120 · Datos de demostración", Phone = "55 0000 0000", Email = "contacto@example.invalid" });
+        db.Settings.Add(new() { Name = config["Bootstrap:ClinicName"] ?? "Clínica Serena", Address = development ? "Av. del Bienestar 120 · Datos de demostración" : config["Bootstrap:ClinicAddress"] ?? "", Phone = development ? "55 0000 0000" : config["Bootstrap:ClinicPhone"] ?? "", Email = development ? "contacto@example.invalid" : config["Bootstrap:ClinicEmail"] ?? "" });
         await db.SaveChangesAsync();
         var password = development && config.GetValue<bool>("Demo:Enabled") ? "SerenaDemo!2026" : config["Bootstrap:Password"];
         if (string.IsNullOrWhiteSpace(password) || (!development && (password.Length < 15 || password.Length > 128 || !password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit)))) throw new InvalidOperationException("Configure Bootstrap__Password de 15 a 128 caracteres con mayúscula, minúscula y número.");
@@ -32,7 +32,8 @@ public static class Seed
             var user = new User { Username = username, Name = name, Email = $"{username}@example.invalid", Roles = role, PatientId = patient, DoctorId = doctor, CompanyId = company, MustChangePassword = !development };
             user.PasswordHash = hasher.HashPassword(user, password); db.Users.Add(user);
         }
-        AddUser(config["Bootstrap:Username"] ?? "admin", "Ana Martínez", "Superadministrador");
+        AddUser(config["Bootstrap:Username"] ?? "admin", config["Bootstrap:Name"] ?? (development ? "Ana Martínez" : "Administrador inicial"), "Superadministrador");
+        if (!development) db.Users.Local.Single().Email = config["Bootstrap:Email"] ?? "";
         if (development && config.GetValue<bool>("Demo:Enabled"))
         {
             var company = new Company { Name = "Horizonte · Empresa demo", Rfc = "DEM010101AAA", Contact = "Laura Méndez", Email = "empresa@example.invalid", Agreement = "Convenio de demostración: consultas generales y seguimiento.", ValidUntil = new(2027, 12, 31) };

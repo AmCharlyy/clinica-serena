@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "powershell -NoProfile -File scripts/Start-Development.ps1",
     "build": "powershell -NoProfile -File scripts/Build.ps1",
+    "build:deploy": "powershell -NoProfile -File scripts/Build-Deploy.ps1",
+    "test:deploy": "powershell -NoProfile -File scripts/Test-Deploy.ps1",
     "test:integration": "node tests/integration.mjs",
     "test:security": "node tests/security.mjs",
     "test:roles": "node tests/roles.mjs",

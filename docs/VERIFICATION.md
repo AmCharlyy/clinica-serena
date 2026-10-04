@@ -82,4 +82,13 @@ Todas las pruebas de ejecución se realizaron con SQLite en **Development**. La 
 
 Antes de usar datos reales hacen falta pruebas de SQL Server/IIS/Windows Server, concurrencia y carga; restauración en un entorno de recuperación; validación de permisos de carpetas y servicio; MFA y antimalware; políticas de retención, consentimiento y acceso a información clínica; auditoría externa y aceptación por usuarios.
 
-Los comprobantes son simulados, las notificaciones son internas, los convenios no calculan tarifas automáticamente y el diagnóstico no administra servicios de Windows. Los respaldos son manuales, la restauración no se ejecuta desde la web y **ClinicaDeploy no forma parte de esta entrega**. Consulta `RECOVERY.md` y el alcance pendiente del README.
+Los comprobantes son simulados, las notificaciones son internas, los convenios no calculan tarifas automáticamente y el diagnóstico web no administra servicios de Windows. La restauración no se ejecuta desde la web. ClinicaDeploy se incorporó como herramienta técnica separada; su aceptación sobre el servidor sigue pendiente. Consulta `DEPLOY.md`, `RECOVERY.md` y el alcance pendiente del README.
+
+### ClinicaDeploy — 3 de octubre de 2026
+
+- WPF y núcleo compilados sin errores; ejecutable autocontenido Windows x64 y publicación clínica ZIP generados.
+- 40 comprobaciones de configuración, rutas/ZIP, integridad y cifrado; 12 de bootstrap de producción y transferencia de claves/certificado sobre SQLite aislado; 13 del motor SQL/configuración mediante mocks y archivos temporales. Total: 65 comprobaciones, sin aprovisionar IIS/SQL/firewall reales.
+- Regresión de la clínica con el backend actualizado: 14 grupos de integración, 20 de roles, 30 de seguridad y prueba del frontend/API publicados, todos aprobados en bases Development aisladas.
+- Render nativo inspeccionado para bienvenida y seguridad; pie fijo y contenido desplazable. Las imágenes se generan en `output/deploy/` y no contienen datos reales.
+- Ejecutable real probado con `--run` en operación Check: detectó Windows de escritorio, ausencia de elevación, IIS/ANCM/runtime global, SQL y configuración TLS/DNS. Generó informe JSON/HTML sin crear `C:\ClinicaSerena` ni alterar servicios/políticas del equipo. Se corrigió la espera explícita de las utilidades GUI antes de proseguir.
+- Pendiente: aceptación en Windows Server 2019 con IIS/SQL reales, tarea como SYSTEM, certificados/ACL, actualización/fallo y restauración en otro servidor; firma Authenticode y revisión externa de seguridad. No usar el éxito de estas pruebas aisladas como certificación de producción.

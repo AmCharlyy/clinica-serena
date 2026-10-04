@@ -51,8 +51,21 @@ public static class StorageEndpoints
             var doc = await Scoped(db, c).FirstOrDefaultAsync(d => d.Id == id); if (doc == null) return Results.NotFound(); if (doc.Version != input.Version) return Results.Conflict(new { message = "El documento cambió." }); doc.Released = input.Released; db.Audit(c, "Cambiar publicación", "Documento", id.ToString()); if (doc.Released) await Access.NotifyPatient(db, doc.PatientId, "Documento disponible", $"Se publicó un documento: {doc.Category}."); await db.SaveChangesAsync(); return Results.Ok();
         }).RequireAuthorization("documents.publish");
         app.MapGet("/api/backups", async (ClinicDb db) => Results.Ok(await db.Backups.OrderByDescending(b => b.Id).ToListAsync())).RequireAuthorization("backups.read");
-        app.MapPost("/api/backups", async (ClinicDb db, StoragePaths paths, HttpContext c) =>
+        app.MapGet("/api/backups/policy", (IConfiguration config, StoragePaths paths) =>
         {
+            var managed = config.GetValue<bool>("Backups:ManagedExternally");
+            string? completed = null;
+            var file = Path.Combine(paths.Backups, "technical-status.json");
+            if (managed && File.Exists(file))
+            {
+                try { using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(file)); completed = json.RootElement.GetProperty("CompletedAt").GetString(); }
+                catch (Exception error) when (error is IOException or System.Text.Json.JsonException or KeyNotFoundException) { }
+            }
+            return Results.Ok(new { managedExternally = managed, lastCompletedAt = completed });
+        }).RequireAuthorization("backups.read");
+        app.MapPost("/api/backups", async (ClinicDb db, StoragePaths paths, HttpContext c, IConfiguration config) =>
+        {
+            if (config.GetValue<bool>("Backups:ManagedExternally")) return Results.Conflict(new { message = "En este servidor, los respaldos consistentes y cifrados se crean desde ClinicaDeploy o su tarea programada. La web no posee permisos administrativos de SQL Server." });
             var stamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + "-" + Guid.NewGuid().ToString("N")[..6]; var name = $"clinica-{stamp}"; var staging = Path.Combine(paths.Backups, name); Directory.CreateDirectory(staging);
             var backup = new Backup { RequestedBy = c.User.UserId(), Name = name + ".zip", Provider = db.Database.IsSqlite() ? "Sqlite" : "SqlServer", Status = "En curso" }; db.Backups.Add(backup); await db.SaveChangesAsync();
             try

@@ -1,4 +1,4 @@
-param([switch]$CleanDependencies)
+﻿param([switch]$CleanDependencies)
 $ErrorActionPreference='Stop'
 $projectRoot=Split-Path $PSScriptRoot -Parent
 $portable=Join-Path $projectRoot '.tools\dotnet\dotnet.exe'

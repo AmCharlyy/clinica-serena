@@ -85,11 +85,21 @@ Las rutas visibles, los formularios y los datos devueltos por la API dependen de
 Estas capacidades se contemplan para una fase posterior y **no forman parte de esta entrega**:
 
 - Invitaciones de pacientes por correo, SMTP/Brevo, autorregistro y recuperación de cuenta por correo.
-- Automatización de instalación y configuración mediante ClinicaDeploy.
 - Facturación CFDI/SAT, no solo comprobantes internos.
 - Tarifas, autorizaciones y reglas automáticas por convenio.
 - Inventario/farmacia, laboratorio, imagenología, telemedicina e integraciones externas.
-- Programación automática de respaldos, restauración desde la web y administración de servicios de Windows.
+- Restauración desde la web y administración de servicios de Windows desde cuentas clínicas.
+
+## ClinicaDeploy: asistente visual de Windows
+
+Ya existe un instalador técnico con la línea Salud Serena, separado de la aplicación clínica: instalación inicial sin demo, comprobación de requisitos, configuración de IIS/SQL local/HTTPS/ACL, actualización y reparación, tarea de respaldos cifrados, exportación de clave, recuperación en una base/carpeta nuevas e informes. No cambia RDP ni instala/licencia SQL Server automáticamente; correo y autorregistro siguen aplazados.
+
+```powershell
+npm run test:deploy
+npm run build:deploy
+```
+
+El paquete se entrega desde `artifacts/deploy/`; abrir `ClinicaDeploy.exe` junto con `Deploy.ps1` y la publicación ZIP. La guía [DEPLOY.md](docs/DEPLOY.md) explica los datos solicitados, custodia de claves, permisos, modos de operación y aceptación. El ejecutable es autocontenido, pero la clínica requiere Hosting Bundle .NET 10 y SQL local preparados. La firma de código y validación completa en Windows Server/IIS/SQL son pendientes antes de producción.
 
 ## Ejecutar en desarrollo
 
@@ -181,6 +191,7 @@ frontend/                React + TypeScript + Vite
 docs/                    Operación, seguridad, recuperación y verificaciones
 database/                Script SQL Server generado para ClinicaDB
 scripts/                 Inicio y publicación local
+deploy/                  Asistente WPF, núcleo de integridad y motor de despliegue
 tests/                   Pruebas de integración, seguridad y experiencia
 ```
 
@@ -189,6 +200,7 @@ tests/                   Pruebas de integración, seguridad y experiencia
 - [Espacios, permisos y alcance de datos](docs/ROLE_WORKSPACES.md)
 - [Seguridad y operación](docs/SECURITY.md)
 - [Procedimiento de recuperación](docs/RECOVERY.md)
+- [Instalación, actualización y continuidad con ClinicaDeploy](docs/DEPLOY.md)
 - [Verificación local](docs/VERIFICATION.md)
 - [Indicadores y workbenches por área](docs/WORKBENCHES.md)
 - [Refinamiento de experiencia](docs/UX_REFINEMENT.md)

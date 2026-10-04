@@ -5,16 +5,27 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true);
+// Environment overrides are transient during bootstrap; passwords never belong in Local.json.
+builder.Configuration.AddEnvironmentVariables();
 var paths = new StoragePaths(Path.GetFullPath(builder.Configuration["Storage:Root"] ?? "../data"));
 Directory.CreateDirectory(paths.Root); Directory.CreateDirectory(paths.Documents); Directory.CreateDirectory(paths.Backups); Directory.CreateDirectory(Path.Combine(paths.Root, "keys"));
 builder.Services.AddSingleton(paths);
 builder.Services.AddSingleton<AuditIntegrity>();
 builder.Services.AddScoped<SessionSecurity>();
 var protection = builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(paths.Root, "keys"))).SetApplicationName("ClinicaSerena");
-if (OperatingSystem.IsWindows()) protection.ProtectKeysWithDpapi();
+var keyCertificate = builder.Configuration["DataProtection:CertificateThumbprint"];
+if (!string.IsNullOrWhiteSpace(keyCertificate))
+{
+    using var store = new X509Store(StoreName.My, StoreLocation.LocalMachine); store.Open(OpenFlags.ReadOnly);
+    var certificates = store.Certificates.Find(X509FindType.FindByThumbprint, keyCertificate, false);
+    if (certificates.Count != 1 || !certificates[0].HasPrivateKey) throw new InvalidOperationException("El certificado de protección de datos no está disponible.");
+    protection.ProtectKeysWithCertificate(certificates[0]);
+}
+else if (OperatingSystem.IsWindows()) protection.ProtectKeysWithDpapi();
 var provider = builder.Configuration["Database:Provider"];
 if (provider == "Sqlite" && !builder.Environment.IsDevelopment()) throw new InvalidOperationException("SQLite está habilitado únicamente en desarrollo.");
 var connection = builder.Configuration.GetConnectionString("Clinic") ?? throw new InvalidOperationException("Configure ConnectionStrings__Clinic.");
@@ -83,6 +94,8 @@ app.Use(async (c, next) =>
     await next();
 });
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok", application = "ClinicaSerena" }));
+app.MapGet("/api/health/ready", async (ClinicDb db) => await db.Database.CanConnectAsync()
+    ? Results.Ok(new { status = "ready" }) : Results.Json(new { status = "unavailable" }, statusCode: 503));
 app.MapAuth(); app.MapSecurity(); app.MapClinical(); app.MapManagement(); app.MapStorage(); app.MapWorkbench();
 app.MapFallback(async c => { if (c.Request.Path.StartsWithSegments("/api")) { c.Response.StatusCode = 404; return; } var index = Path.Combine(app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot"), "index.html"); if (File.Exists(index)) { c.Response.ContentType = "text/html"; await c.Response.SendFileAsync(index); } else { c.Response.StatusCode = 404; } });
 await using (var scope = app.Services.CreateAsyncScope())
@@ -93,5 +106,7 @@ await using (var scope = app.Services.CreateAsyncScope())
     else if (!await db.Database.CanConnectAsync()) throw new InvalidOperationException("SQL Server no está disponible. Ejecuta las migraciones antes de iniciar.");
     await using var transaction = await db.Database.BeginTransactionAsync(); await Seed.Initialize(db, builder.Configuration, app.Environment.IsDevelopment()); await transaction.CommitAsync();
 }
+// Only the elevated deployment tool uses this mode, with a temporary migration identity.
+if (args.Contains("--deploy-initialize")) { await app.DisposeAsync(); return; }
 await app.RunAsync();
 public partial class Program { }

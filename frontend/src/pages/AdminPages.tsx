@@ -1457,6 +1457,7 @@ export function SystemPage() {
 }
 export function BackupsPage() {
   const data = useData("backups"),
+    policy = useData<{ managedExternally: boolean; lastCompletedAt: string | null }>("backups/policy"),
     write = useWrite(),
     { user } = useApp(),
     [busy, setBusy] = useState(false),
@@ -1466,9 +1467,9 @@ export function BackupsPage() {
       <PageHead
         eyebrow="CONTINUIDAD"
         title="Respaldos"
-        description="Copias manuales de la base de datos y los documentos privados."
+        description={policy.data?.managedExternally ? "Respaldos cifrados administrados por el equipo técnico." : "Copias manuales de la base de datos y los documentos privados."}
         action={
-          user.permissions.includes("backups.write") && (
+          policy.data && !policy.data.managedExternally && user.permissions.includes("backups.write") && (
             <button
               className="btn"
               disabled={busy}
@@ -1491,6 +1492,7 @@ export function BackupsPage() {
         }
       />
       {error && <ErrorBox message={error} />}
+      {policy.data?.managedExternally && <div className="info-box">ClinicaDeploy crea las copias durante una ventana de mantenimiento y las cifra con la clave de recuperación. La aplicación no ejecuta comandos de Windows ni restaura bases de datos. Última copia técnica completada: {policy.data.lastCompletedAt ? dateTime(policy.data.lastCompletedAt) : "sin registro disponible"}. El informe técnico conserva el resultado de cada ejecución.</div>}
       <div className="card">
         <Table
           rows={data.data ?? []}
@@ -1515,7 +1517,7 @@ export function BackupsPage() {
           ]}
           actions={(r) =>
             txt(r, "status") === "Completado" &&
-            user.permissions.includes("backups.download") ? (
+            !policy.data?.managedExternally && user.permissions.includes("backups.download") ? (
               <button
                 className="link"
                 onClick={() =>

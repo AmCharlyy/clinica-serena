@@ -71,6 +71,7 @@ No se han cambiado firewall, RDP, servicios, políticas de bloqueo, antivirus ni
 - Sincronizar reloj/NTP del servidor y los autenticadores. No incrementar arbitrariamente la tolerancia de TOTP.
 - Custodiar y respaldar claves de Data Protection por separado de los ZIP de BD/documentos. DPAPI vincula la protección al usuario/equipo: copiar `data/keys` a otro servidor no garantiza poder descifrarlo. Diseñar protección transferible (p. ej. certificado privado custodiado) y probar restauración antes de producción. No incluir claves sin protección junto a la base.
 - Plan de respaldo cifrado externo, retención y restauraciones probadas. Una copia dentro del mismo disco no protege contra ransomware o fallo físico. Los respaldos conservan datos y también pueden contener borradores expirados hasta cumplir su retención.
+- ClinicaDeploy implementa protección por certificado para claves y respaldos cifrados fuera del sitio público; exportación PFX bajo custodia separada. Identidad web sin db_owner ni backup SQL; tarea técnica SYSTEM con permisos SQL acotados y verificación mediante procedimiento firmado. Estas operaciones deben probarse sobre el servidor real. Véase [DEPLOY.md](DEPLOY.md).
 - Revisar privacidad y retención aplicables, protocolo de recuperación, autorización de trabajadores, doble aprobación y revisión periódica de accesos.
 
 ## Datos y verificación

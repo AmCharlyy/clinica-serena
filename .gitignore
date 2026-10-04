@@ -22,3 +22,10 @@ frontend/tsconfig.tsbuildinfo
 .vs/
 .idea/
 backend/appsettings.Local.json
+*.pfx
+*.p12
+*.serena
+*.secret
+clinica-config.json
+deployment.json
+technical-status.json
