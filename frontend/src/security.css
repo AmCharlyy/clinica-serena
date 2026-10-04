@@ -1,0 +1,21 @@
+.security-screen { min-height: 100dvh; padding: 32px 16px; display: grid; place-items: center; background: radial-gradient(at top left, #e0ede4, #f4f7f5 65%); }
+.security-card { width: min(100%, 620px); padding: clamp(24px, 5vw, 42px); border: 1px solid #dce6df; border-radius: 24px; background: #fff; box-shadow: 0 16px 60px #103b3710; }
+.security-card h1 { font-size: clamp(25px, 4vw, 34px); }
+.security-card p, .account-security p { line-height: 1.6; }
+.brand.security-brand { color: #103b37; margin-bottom: 28px; }
+.totp-qr { display: block; width: min(240px, 100%); height: auto; margin: 12px auto; }
+.manual-key { display: block; overflow-wrap: anywhere; padding: 14px; background: #f4f7f5; }
+.security-field { display: grid; gap: 8px; margin: 18px 0; font-size: 14px; }
+.security-field input, .security-field textarea { width: 100%; padding: 13px; border: 1px solid #d5e2da; border-radius: 9px; background: white; color: #183b35; }
+.security-check { display: flex; flex-direction: row; gap: 12px; align-items: flex-start; margin: 20px 0; line-height: 1.5; }
+.security-check input { width: auto; flex-shrink: 0; margin-top: 5px; }
+.recovery-grid { display: grid; gap: 10px; padding: 16px 0; }
+.recovery-grid code { background: #f4f7f5; padding: 10px; font-size: 13px; overflow-wrap: anywhere; }
+.security-card .link { margin-top: 18px; }
+.account-security { border-top: 1px solid #e1e9e4; margin-top: 28px; padding-top: 22px; }
+.account-security h3, .security-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.account-security .security-card { box-shadow: none; padding: 16px; }
+.session-warning { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 90; width: min(90vw, 780px); padding: 16px; border: 1px solid #dec284; background: #fff8e7; box-shadow: 0 6px 30px #103b3730; border-radius: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.session-warning span { flex: 1; min-width: 160px; }
+.draft-status { padding: 12px 0; color: #49665e; font-size: 13px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 480px) { .security-screen { padding: 12px; } .security-card { border-radius: 16px; } .recovery-grid code { font-size: 11px; } }

@@ -1,0 +1,18 @@
+{
+  "name": "clinica-serena-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "powershell -NoProfile -File scripts/Start-Development.ps1",
+    "build": "powershell -NoProfile -File scripts/Build.ps1",
+    "test:integration": "node tests/integration.mjs",
+    "test:security": "node tests/security.mjs",
+    "test:roles": "node tests/roles.mjs",
+    "test:workbench": "node tests/workbench.mjs",
+    "test:workbench-filters": "node --experimental-strip-types tests/workbench-filters.mjs",
+    "test:access-context": "node --experimental-strip-types tests/access-context.mjs",
+    "test:published": "node tests/smoke-published.mjs",
+    "test:calendar": "node --experimental-strip-types tests/calendar.mjs",
+    "test:experience": "node --experimental-strip-types tests/experience.mjs"
+  }
+}
